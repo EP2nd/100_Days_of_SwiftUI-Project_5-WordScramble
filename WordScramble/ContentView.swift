@@ -17,6 +17,9 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    /// Challenge 3:
+    @State private var score = 0
+    
     var body: some View {
         NavigationView {
             List {
@@ -36,6 +39,17 @@ struct ContentView: View {
             }
             .navigationTitle(rootWord)
             .navigationBarTitleDisplayMode(.inline)
+            /// Challenge 2 and 3:
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Restart", action: startGame)
+                }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Text("Score: \(score)")
+                        .foregroundColor(.red)
+                        .bold()
+                }
+            }
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
             .alert(errorTitle, isPresented: $showingError) {
@@ -58,6 +72,12 @@ struct ContentView: View {
                 
                 /// 4. Pick one random word, or use "silkworm" as a sensible default:
                 rootWord = allWords.randomElement() ?? "silkworm"
+                
+                /// Challenge 2:
+                usedWords.removeAll()
+                newWord = ""
+                /// Challenge 3:
+                score = 0
                 
                 /// If we are here, everything has worked, so we can exit:
                 return
@@ -103,7 +123,11 @@ struct ContentView: View {
         let answer = newWord.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
         /// Exist if the remaining string is empty:
-        guard answer.count > 0 else { return }
+        /// Challenge 1:
+        guard answer.count >= 3 && answer != rootWord else {
+            wordError(title: "I see what you did here!", message: "Your word is too short or is the same as our root word. Try harder!")
+            return
+        }
         
         guard isOriginal(word: answer) else {
             wordError(title: "Word used already!", message: "Be more original.")
@@ -122,8 +146,24 @@ struct ContentView: View {
         
         withAnimation {
             usedWords.insert(answer, at: 0)
+            /// Challenge 3:
+            scoreFor(newWord.count)
         }
         newWord = ""
+    }
+    
+    /// Challenge 3:
+    func scoreFor(_ newWord: Int) {
+        switch newWord {
+        case rootWord.count:
+            score += 20
+        case rootWord.count - 1:
+            score += 10
+        case 4 ..< rootWord.count:
+            score += 5
+        default:
+            score += 3
+        }
     }
 }
 
