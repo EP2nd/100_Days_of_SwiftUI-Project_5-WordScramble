@@ -50,6 +50,15 @@ struct ContentView: View {
                         .bold()
                 }
             }
+            /// Other great option for showing score in SwiftUI:
+            /* .safeAreaInset(edge: .bottom) {
+                Text("Score: \(score)")
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(.blue)
+                    .foregroundColor(.white)
+                    .font(.title)
+            } */
             .onSubmit(addNewWord)
             .onAppear(perform: startGame)
             .alert(errorTitle, isPresented: $showingError) {
@@ -124,8 +133,13 @@ struct ContentView: View {
         
         /// Exist if the remaining string is empty:
         /// Challenge 1:
-        guard answer.count >= 3 && answer != rootWord else {
+        guard answer.count >= 3 else {
             wordError(title: "I see what you did here!", message: "Your word is too short or is the same as our root word. Try harder!")
+            return
+        }
+        
+        guard answer != rootWord else {
+            wordError(title: "Nice try!", message: "Your word is the same as our root word. Easy points are not allowed!")
             return
         }
         
